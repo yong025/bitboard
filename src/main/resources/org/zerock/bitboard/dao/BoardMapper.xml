@@ -6,6 +6,14 @@
     <insert id="insert">
         insert into board (title, content, writer)
         values (#{title}, #{content}, #{writer})
+        <selectKey order="AFTER" resultType="int" keyProperty="bno">
+            select last_insert_id()
+        </selectKey>
+    </insert>
+
+    <insert id="insertAttach">
+        insert into attach (bno, fname, savename, imgyn)
+        values (#{bno}, #{fname},#{savename}, #{imgyn})
     </insert>
 
     <select id="select" resultType="org.zerock.bitboard.dto.BoardDTO">
@@ -17,7 +25,8 @@
     </select>
 
     <update id="update">
-        update board set title = #{title}, content = #{content} , updatedate = now() where bno = #{bno}
+        update board set title = #{title},content = #{content} , updatedate = now()
+        where bno = #{bno}
     </update>
 
     <delete id="delete">

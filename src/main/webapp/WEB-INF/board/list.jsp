@@ -12,13 +12,44 @@
     <title>Title</title>
 </head>
 <body>
+
+<script>
+
+    let bno= '${param.bno}'
+
+    if(bno){
+        alert(bno)
+        window.history.replaceState(null, '','/board/list');
+    }
+
+</script>
+
 <h1>list page</h1>
 
 <h4>${pageMaker}</h4>
 
+<form action="/board/list" method="get">
+    <input type="hidden" name="page" value="1"> <!--화면에는 보이지 않지만 설정값을 함께 전달해줌-->
+    <select name="size">
+        <option value="10" ${pageMaker.size == 10?"selected":""}>10</option>
+        <option value="20" ${pageMaker.size == 20?"selected":""}>20</option>
+        <option value="50" ${pageMaker.size == 50?"selected":""}>50</option>
+        <option value="100" ${pageMaker.size == 100?"selected":""}>100</option>
+    </select>
+    <button type="submit">적용</button>
+</form>
+
 <ul>
     <c:forEach items="${dtolist}" var="dtolist">
-    <li>${dtolist}</li>
+    <li>
+        <div>
+            ${dtolist.bno}
+            <a href="/board/read?bno=${dtolist.bno}&page=${pageMaker.page}&size=${pageMaker.size}">${dtolist.title}</a>
+            ${dtolist.viewcount}
+            ${dtolist.writer}
+           ${dtolist.regdate}
+        </div>
+    </li>
     </c:forEach>
 </ul>
 
@@ -43,7 +74,7 @@
     </c:if>
 
     <c:forEach begin="${pageMaker.start}" end="${pageMaker.end}" var="page">
-    <li><a href="/board/list?page=${page}&size=${pageMaker.size}">${page}</a></li>
+    <li class="${page == pageMaker.page?"current":""}"><a href="/board/list?page=${page}&size=${pageMaker.size}">${page}</a></li>
     </c:forEach>
 
     <c:if test="${pageMaker.next}">

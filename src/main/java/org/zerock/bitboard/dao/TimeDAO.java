@@ -10,7 +10,7 @@ public enum TimeDAO {
     public String getTime() throws RuntimeException {
         String result =null;// 익명클래스 사용아니기 때문에 사용가능
 
-        try (SqlSession session = MyBatisLoader.INSTANCE.getFactory().openSession()) {//close코드
+        try (SqlSession session = MyBatisLoader.INSTANCE.getFactory().openSession()) {//session객체 코드
            result = session.selectOne("org.zerock.bitboard.dao.TimeMapper.getTime");
             log.info("=================================");
             log.info(result);

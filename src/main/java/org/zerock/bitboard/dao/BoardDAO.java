@@ -2,6 +2,7 @@ package org.zerock.bitboard.dao;
 
 import lombok.extern.log4j.Log4j2;
 import org.apache.ibatis.session.SqlSession;
+import org.zerock.bitboard.dto.AttachDTO;
 import org.zerock.bitboard.dto.BoardDTO;
 import org.zerock.bitboard.dto.PageDTO;
 
@@ -14,19 +15,40 @@ public enum BoardDAO {
 
     private static final String PREFIX = "org.zerock.bitboard.dao.BoardMapper";
 
-    public void insert(BoardDTO boardDTO)throws RuntimeException {
+    public Integer insert(BoardDTO boardDTO)throws RuntimeException {
 
-        try(SqlSession session = MyBatisLoader.INSTANCE.getFactory().openSession(true)) {//true를 넣으면 auto commit기능
-            session.insert(PREFIX+".insert", boardDTO);
+        Integer bno = null;
+
+        try(SqlSession session = MyBatisLoader.INSTANCE.getFactory().openSession()) {//true를 넣으면 auto commit기능
+             session.insert(PREFIX+".insert", boardDTO);
+             bno = boardDTO.getBno();
+
+             List<AttachDTO> attachDTOList = boardDTO.getAttachDTOList();
+            if(attachDTOList != null && attachDTOList.size() > 0){
+
+             for(AttachDTO attachDTO:attachDTOList){
+                 attachDTO.setBno(bno);
+                 session.insert(PREFIX+".insertAttach", attachDTO);
+             }
+        }
+             session.commit();
         }catch (Exception e){
             log.error(e.getMessage());
             throw new RuntimeException(e.getMessage());
         }
-
+        return bno;
     }
 
     public BoardDTO select(Integer bno) throws RuntimeException {
         BoardDTO dto = null;
+
+        try (SqlSession session = MyBatisLoader.INSTANCE.getFactory().openSession(true)) { //openSession에 true를 주면 autoCommit됨.
+            session.update(PREFIX + ".updateViewcount", bno);
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            throw new RuntimeException(e.getMessage()); //예외 잡아서 던지기!
+        }
+
         try (SqlSession session = MyBatisLoader.INSTANCE.getFactory().openSession(true)) {//true를 넣으면 auto commit기능
             dto = session.selectOne(PREFIX + ".select", bno); //하나 가져올때는 selectOne 여러개는 selectList로 호출한다.
         } catch (Exception e) {
@@ -48,15 +70,13 @@ public enum BoardDAO {
         return list;
     }
 
-    public void update(BoardDTO boardDTO)  throws RuntimeException {
-
-        try(SqlSession session = MyBatisLoader.INSTANCE.getFactory().openSession(true)) {//true를 넣으면 auto commit기능
-            session.update(PREFIX+".update", boardDTO);
-        }catch (Exception e){
+    public void update(BoardDTO boardDTO) throws RuntimeException {
+        try (SqlSession session = MyBatisLoader.INSTANCE.getFactory().openSession(true)) { //openSession에 true를 주면 autoCommit됨.
+            session.update(PREFIX + ".update", boardDTO);
+        } catch (Exception e) {
             log.error(e.getMessage());
-            throw new RuntimeException(e.getMessage());
+            throw new RuntimeException(e.getMessage()); //예외 잡아서 던지기!
         }
-
     }
 
     public void delete(Integer bno) throws RuntimeException {

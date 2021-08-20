@@ -12,11 +12,24 @@ public enum BoardService {
 
     INSTANCE;
 
-    public List<BoardDTO> getlist(PageDTO pageDTO)throws RuntimeException{
+    public Integer register(BoardDTO boardDTO) throws RuntimeException{
+
+        return BoardDAO.INSTANCE.insert(boardDTO);
+    }
+
+    public BoardDTO read(Integer bno) throws RuntimeException {
+
+        log.info("BoardService read............." + bno);
+
+        return BoardDAO.INSTANCE.select(bno);
+
+    }
+
+    public List<BoardDTO> getlist(PageDTO pageDTO)throws RuntimeException{//페이징
 
         log.info("Getlist....");
         log.info(pageDTO);
-        return BoardDAO.INSTANCE.list(pageDTO);
+        return BoardDAO.INSTANCE.list(pageDTO);//dao에서 처리한 후 이어진 값을 List에 전달한다.
     }
 
 
@@ -34,11 +47,9 @@ public enum BoardService {
     }
 
 
-    public void update(BoardDTO boardDTO){
-
-        log.info("update....");
+    public void modify(BoardDTO boardDTO) throws RuntimeException {
+        log.info("BoardService update..............");
         BoardDAO.INSTANCE.update(boardDTO);
-
     }
 
     public void delete(Integer bno){
@@ -46,4 +57,5 @@ public enum BoardService {
         log.info("delete.......");
         BoardDAO.INSTANCE.delete(bno);
     }
+
 }
